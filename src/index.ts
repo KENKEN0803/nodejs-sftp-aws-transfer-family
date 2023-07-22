@@ -4,7 +4,10 @@ import SftpClient from 'ssh2-sftp-client';
 
 const sftp = new SftpClient();
 
-// Connect to SFTP
+function bytesToMegabytes(bytes: number) {
+  return bytes / (1024 * 1024);
+}
+
 async function connectToSftp(
   host: string,
   username: string,
@@ -36,7 +39,17 @@ async function uploadDirectory(localDir: string, remoteDir: string) {
       const localFile = path.join(localDir, file);
       const remoteFile = path.join(remoteDir, file);
       console.log(`Uploading ${localFile} to ${remoteFile}`);
-      await sftp.put(localFile, remoteFile);
+      await sftp.fastPut(localFile, remoteFile, {
+        step: (totalTransferred, chunk, total) => {
+          const totalTransferredMB =
+            bytesToMegabytes(totalTransferred).toFixed(2);
+          const totalMB = bytesToMegabytes(total).toFixed(2);
+          const percentage = ((totalTransferred / total) * 100).toFixed(2);
+          console.log(
+            `Uploading progress: ${totalTransferredMB} MB / ${totalMB} MB chunk ${chunk} byte ${percentage}%`,
+          );
+        },
+      });
       console.log(`Upload completed for ${localFile}`);
     }
   } catch (err) {

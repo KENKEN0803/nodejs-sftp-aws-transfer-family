@@ -71,14 +71,26 @@ async function listRemoteDirectory(remoteDir: string) {
 
 // Usage
 (async () => {
+  const s3BucketName = 'ats-sftp-demo-test-bkt';
+  const s3UserName = 'LeeJaeHyun-Home';
+  const s3Endpoint =
+    's-78d9c8c8307046438.server.transfer.ap-northeast-2.amazonaws.com';
+  const s3RemoteDir = `/${s3BucketName}/${s3UserName}/`;
+
+  const efsUserName = 'LeeJaeHyun-Mac';
+  const efsEndpoint =
+    's-30c6fa438c37472ab.server.transfer.ap-northeast-2.amazonaws.com';
+  const efsRemoteDir = '/fs-060777736c724d877/mkdir_test';
+
+  const macUploadFolderPath = '/Users/kenken/Upload';
+  const macPrivateKeyPath = '/Users/kenken/.ssh/id_rsa';
+
+  const windowsUploadFolderPath = 'c:/Users/KENKEN/Uploads';
+  const windowsPrivateKeyPath = 'c:/Users/KENKEN/.ssh/my_key';
   try {
-    await connectToSftp(
-      's-78d9c8c8307046438.server.transfer.ap-northeast-2.amazonaws.com',
-      'LeeJaeHyun-Home',
-      'c:/Users/KENKEN/.ssh/my_key',
-    );
-    await uploadDirectory('c:/Users/KENKEN/Uploads', '');
-    await listRemoteDirectory('/ats-sftp-demo-test-bkt/LeeJaeHyun-Home/');
+    await connectToSftp(efsEndpoint, efsUserName, macPrivateKeyPath);
+    await uploadDirectory(macUploadFolderPath, efsRemoteDir);
+    await listRemoteDirectory('/');
   } catch (err) {
     console.error(err);
   } finally {
